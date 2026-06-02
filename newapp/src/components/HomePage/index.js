@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router-dom"
-import {FormContainer, FormElement,Heading,Labels,TopicInput,FileInput,SubmitButton} from "./styledComponents"
+import {FormContainer, FormElement,Heading,Labels,InputEle,SubmitButton} from "./styledComponents"
 const Home =(props) =>{
     const navigate = useNavigate()
     const submission = (event)=>{
@@ -15,9 +15,9 @@ const Home =(props) =>{
         <FormElement onSubmit={submission}>
             <Heading color="rgb(16, 189, 242)">DOCUCHART</Heading>
             <Labels htmlFor="topic">Enter the topic</Labels>
-            <TopicInput id="topic" type="text"/>
+            <InputEle id="topic" type="text"/>
             <Labels htmlFor="File">Upload the File</Labels>
-            <FileInput id="File" type="file"/>
+            <InputEle id="File" type="file"/>
             <SubmitButton to="/chat" type="submit" >Submit</SubmitButton>
         </FormElement>
     </FormContainer>

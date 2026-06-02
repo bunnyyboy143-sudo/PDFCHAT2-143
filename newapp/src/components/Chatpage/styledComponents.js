@@ -7,5 +7,45 @@ export const ChatContainer= styled.div`
     padding: 24px;
     color: #ffffff;
     font-family: roboto;
+    display:flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+`
+export const InputTab = styled.form`
+    background-color: #ffffff61;
+    border-radius: 30px;
+    padding: 12px;
+    margin-top: auto;
+    width: 100%;
+    text-align:left;
+    display:flex;
+    align-items:center;
+`
+export const InputBox = styled.input`
+    width: 80%;
+    border: 1px dotted transparent;
+    outline: none;
+    margin:0px;
+    padding: 2px;
+    ${'' /* background-color: #000000; */}
+    color: #faf5f5;
+    background-color: transparent;
+    text-align:left;
+    font-size: 16px;
+    margin-left: 16px;
+
+    &::placeholder{
+        color: #faf5f5;
+    }
+`
+export const EnterButn = styled.button`
+    outline: none;
+    cursor:pointer;
+    background-color: transparent;
+    border:0px;
+    font-size: 24px;
+    margin-left: auto;
+    color: #ffffff;
 `
 

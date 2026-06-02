@@ -28,13 +28,14 @@ export const Labels = styled.label`
     margin-bottom: 8px;
     text-align: start;
 `
-export const TopicInput = styled.input`
+export const InputEle = styled.input`
     width:100%;
-`
-export const FileInput = styled(TopicInput)`
-    border: 1px solid #ffffff;
+    background-color: rgba(16, 189, 242, 0.14);
+    border: 1px solid rgb(16, 189, 242);
+    color: #ffffff;
     padding: 6px;
 `
+
 export const SubmitButton = styled.button`
     background-color: transparent;
     color: rgb(16, 189, 242);
