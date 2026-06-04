@@ -9,7 +9,7 @@ export const ChatContainer= styled.div`
     font-family: roboto;
     display:flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
 `
 export const InputTab = styled.form`
@@ -49,14 +49,19 @@ export const EnterButn = styled.button`
 `
 
 export const MessagesContainer = styled.div`
-    min-height: 100%;
+    min-height: 100vh;
     width: 100%;
-    backgound-color: #36daf41f;
+    background-color: #36dbf41b;
     color: #ffffff;
     display:flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
+    
     align-items: flex-end;
-    margin-left: 24px;
+    margin-left: auto;
     margin-right: 24px;
+    padding:12px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    overflow: auto:
 `

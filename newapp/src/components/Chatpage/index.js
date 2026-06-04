@@ -11,7 +11,7 @@ const Chatpage = () =>{
         <ChatContainer>
             <h1>Chat page</h1>
             <MessagesContainer>
-                <p>hlo</p>
+                
             </MessagesContainer>
             <InputTab>
                 <InputBox 
