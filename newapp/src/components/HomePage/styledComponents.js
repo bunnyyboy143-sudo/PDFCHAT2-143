@@ -20,6 +20,10 @@ export const FormElement = styled.form`
     width: 400px;
 `
 
+export const LoadingText = styled.p`
+    color:rgba(0, 192, 251, 0.28);
+`
+
 export const Heading = styled.h1`
     font-family: roboto;
     color: ${props => props.color};

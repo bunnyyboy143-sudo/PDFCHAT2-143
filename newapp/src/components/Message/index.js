@@ -1,9 +1,11 @@
+import ReactMarkdown from 'react-markdown';
 import {MessageItemContainer} from "./styledComponents"
+
 const Message = props =>{
-    const {msgcontent,Msgsource} =props
+    const {msgcontent,msgsource} =props
     return(
-        <MessageItemContainer position = {Msgsource}>
-            <p>{msgcontent}</p>
+        <MessageItemContainer position = {msgsource}>
+            <ReactMarkdown>{msgcontent}</ReactMarkdown>
         </MessageItemContainer>
     )
 

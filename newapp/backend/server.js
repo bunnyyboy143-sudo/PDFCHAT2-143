@@ -48,24 +48,22 @@ app.post("/upload",upload.single("PDF"),async (req,res)=>{
             pdf_path: pdfPath
         }
     );
-    // console.log(response.data)
     res.json(response.data);
-    
-    
 })
 
+
 app.post("/response",async (req,res)=>{
-    console.log(req.body)
+    console.log(req.body.status)
+    console.log("send request to python(port 8000)")
     const response = await axios.post(
         "http://localhost:8000/response",
         {
-            
+            query: req.body.query,
+            status:req.body.status
         }
     );
-    res.json({
-        query: req.body.query
-    })
-
+    console.log(response.data)
+    res.json(response.data)
 })
 
 app.listen(5000,()=>{
