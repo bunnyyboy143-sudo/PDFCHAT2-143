@@ -7,6 +7,7 @@ from Rag_service.applogic import Rag_core
 
 class PdfRequest(BaseModel):
     pdf_path: str
+    topic: str
 
 class ResponseRequest(BaseModel):
     query: str
@@ -26,17 +27,19 @@ def process_pdf(data: PdfRequest):
     try:
         global PDF_PATH_FOR_RAG
         PDF_PATH_FOR_RAG = data.pdf_path
-       
+        print(data.topic)
         query_data ={
         "query": "Greetings to you!",
         "status": True,
-        "pdf_path": data.pdf_path
+        "pdf_path": data.pdf_path,
+        "topic_name": data.topic
         }
         query_response = Rag_core(query_data)
         print(query_response)
         return {
             "response_msg": query_response,
-            "sender": "bot"
+            "sender": "bot",
+            "pdf_path": data.pdf_path
         }
     except Exception as e:
         print(f"Error in /process endpoint: {str(e)}")

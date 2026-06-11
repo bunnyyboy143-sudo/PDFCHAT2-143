@@ -13,9 +13,8 @@ const Home =(props) =>{
             console.log("uploading started")
             const formData = new FormData();
             formData.append("PDF",file)
-
             const response = await fetch(
-                "http://localhost:5000/upload",
+                `http://localhost:5000/upload/${topic}`,
                 {
                     method: "POST",
                     body: formData,
@@ -23,7 +22,7 @@ const Home =(props) =>{
             )
             console.log("uploaded file")
             const data = await response.json();
-            console.log(data.query_response)
+            console.log(data)
             navigate("/chat",{
                 state:{
                     query_response: data.response_msg,
