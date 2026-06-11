@@ -84,3 +84,27 @@ export const LoadingContainer = styled.div`
     margin: 8px;
     margin-top: 12px;
 `
+
+export const ChatHeadSection = styled.div`
+    width: 100%;
+    padding: 12px;
+    display:flex;
+    align-items:center;
+`
+    // justify-content: space-around;^^
+
+export const TopicHeading = styled.h1`
+    margin-left:36%;
+    margin-right:40%;
+    font-weight: bold;
+    text-decoration: underline;
+`
+
+export const BackButton =styled.button`
+    background-color: transparent;
+    outline: none;
+    border:0px;
+    padding: 2px;
+    color: #ffffff;
+    cursor: pointer;
+`

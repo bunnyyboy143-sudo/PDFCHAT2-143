@@ -1,10 +1,12 @@
 import {useState,useEffect,useRef} from "react"
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate} from "react-router-dom";
+import { IoArrowBackCircle } from "react-icons/io5";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import {MagnifyingGlass} from 'react-loader-spinner'
-import {ChatContainer,InputTab,InputBox,MessagesContainer,EnterButn,LoadingContainer} from "./styledComponents"
+import {ChatContainer,ChatHeadSection, TopicHeading, InputTab,InputBox,MessagesContainer,EnterButn, BackButton,LoadingContainer} from "./styledComponents"
 import Message from "../Message"
 const Chatpage = () =>{
+    const navigateBack = useNavigate()
     const {state} = useLocation()
     const [userInput,setUserInput] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -81,10 +83,19 @@ const Chatpage = () =>{
         setUserInput("")
     }
 
+    const onBackInput = ()=>{
+        navigateBack("/")
+    }
+
 
     return(
         <ChatContainer>
-            <h1>{state.title}</h1>
+            <ChatHeadSection>
+                <BackButton onClick={onBackInput}>
+                    <IoArrowBackCircle size={"32px"}/>
+                </BackButton>
+                <TopicHeading>{state.title}</TopicHeading>
+            </ChatHeadSection>
             <MessagesContainer>
                 {responseMsgs.map(each => (
                     <Message key={each.id} msgcontent={each.message} msgsource={each.sender}/>

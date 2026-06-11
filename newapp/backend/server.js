@@ -2,15 +2,39 @@ const axios =require("axios")
 const express = require("express");
 const cors = require("cors")
 const multer = require("multer")
+const fs = require("fs");
+
+
 
 const app = express()
-
+let topicName = null;
 
 app.use(cors())
 
-const upload = multer({
-    dest: "Uploads/"
+const storage = multer.diskStorage({
+    destination: (req,file,cb)=>{
+        const topic = req.params.topic;
+        topicName = topic
+        console.log(topic)
+
+        const folderName =topic
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "_")
+        console.log(folderName)
+        const dir = `Uploads/${folderName}`
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir,{recursive:true})
+        }
+        cb(null,dir)
+    },
+    filename: (req,file,cb) =>{
+        cb(null, file.originalname)
+    }
 })
+
+const upload = multer({ storage })
 
 app.use(express.json())
 
@@ -38,17 +62,23 @@ app.get("/",(req,res)=>{
     res.send("Backend Working TNS....")
 })
 
-app.post("/upload",upload.single("PDF"),async (req,res)=>{
+app.post("/upload/:topic",upload.single("PDF"),async (req,res)=>{
     // console.log(req.file.path);
     const pdfPath = req.file.path;
-
-    const response = await axios.post(
-        "http://localhost:8000/process",
-        {
-            pdf_path: pdfPath
-        }
-    );
-    res.json(response.data);
+    console.log(topicName)
+    try{
+        const response = await axios.post(
+            "http://localhost:8000/process",
+            {
+                pdf_path: pdfPath,
+                topic: topicName
+            }
+        );
+        res.json(response.data);
+    }catch (error){
+        console.log(`Error at server.js API call:${error}`)
+    }
+    
 })
 
 
