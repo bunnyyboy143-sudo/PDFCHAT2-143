@@ -93,9 +93,11 @@ export const ChatHeadSection = styled.div`
 `
     // justify-content: space-around;^^
 
+export const HeadContainer = styled.div`
+    width: 62%;
+    margin-left: auto;
+`
 export const TopicHeading = styled.h1`
-    margin-left:36%;
-    margin-right:40%;
     font-weight: bold;
     text-decoration: underline;
 `
@@ -107,4 +109,5 @@ export const BackButton =styled.button`
     padding: 2px;
     color: #ffffff;
     cursor: pointer;
+    width: 2%;
 `

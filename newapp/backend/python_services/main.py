@@ -14,6 +14,7 @@ class ResponseRequest(BaseModel):
     query: str
     status:str
     session_id: str
+    topic_name: str
 
 app = FastAPI()
 PDF_PATH_FOR_RAG = None
@@ -30,6 +31,7 @@ def process_pdf(data: PdfRequest):
         global PDF_PATH_FOR_RAG
         PDF_PATH_FOR_RAG = data.pdf_path
         print(data.topic)
+        print(data.session_id)
         query_data ={
         "session_id": data.session_id,
         "query": "Greetings to you!",
@@ -59,8 +61,11 @@ def query_response(data: ResponseRequest):
     try:
         query_data ={
         "query": data.query,
-        "status": data.status
+        "status": data.status,
+        "session_id": data.session_id,
+        "topic_name": data.topic_name
         }
+        print(data.session_id)
         query_response = Rag_core(query_data)
         print(query_response)
         return {

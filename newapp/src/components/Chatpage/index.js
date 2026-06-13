@@ -3,7 +3,7 @@ import { useLocation, useNavigate} from "react-router-dom";
 import { IoArrowBackCircle } from "react-icons/io5";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import {MagnifyingGlass} from 'react-loader-spinner'
-import {ChatContainer,ChatHeadSection, TopicHeading, InputTab,InputBox,MessagesContainer,EnterButn, BackButton,LoadingContainer} from "./styledComponents"
+import {ChatContainer,ChatHeadSection, TopicHeading, HeadContainer, InputTab,InputBox,MessagesContainer,EnterButn, BackButton,LoadingContainer} from "./styledComponents"
 import Message from "../Message"
 const Chatpage = () =>{
     const navigateBack = useNavigate()
@@ -22,7 +22,7 @@ const Chatpage = () =>{
             message: state.query_response,
             sender: "bot"
             }])
-        },[state.query_response])
+        },[])  // Empty array - runs only once on mount
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -45,7 +45,9 @@ const Chatpage = () =>{
                     },
                     body: JSON.stringify({
                         query: query,
-                        status: "False"
+                        status: "False",
+                        session_id: state.session_id,
+                        topic_name: state.title
                     })
                 }
             )
@@ -94,7 +96,10 @@ const Chatpage = () =>{
                 <BackButton onClick={onBackInput}>
                     <IoArrowBackCircle size={"32px"}/>
                 </BackButton>
-                <TopicHeading>{state.title}</TopicHeading>
+                <HeadContainer>
+                    <TopicHeading>{state.title}</TopicHeading>
+                </HeadContainer>
+                
             </ChatHeadSection>
             <MessagesContainer>
                 {responseMsgs.map(each => (

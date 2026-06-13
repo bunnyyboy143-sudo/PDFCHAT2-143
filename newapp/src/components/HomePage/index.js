@@ -25,12 +25,13 @@ const Home =(props) =>{
                 }
             )
             console.log("uploaded file")
-            const data = await response.json();
+            const data = await response.json()
             console.log(data)
             navigate("/chat",{
                 state:{
                     query_response: data.response_msg,
                     title: topic,
+                    session_id: session_id
                 }
             })
         }catch(error){

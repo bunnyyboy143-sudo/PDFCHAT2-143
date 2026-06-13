@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from pprint import pprint
 import re
 import shutil
 
@@ -12,10 +13,12 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from pymongo import MongoClient
 
-
+#Saved upto here
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 print(f"Debug: GROQ_API_KEY loaded: {'Yes' if GROQ_API_KEY else 'No'}")
+chat_session = {}
 
 def get_vector_store(topic_name, embeddings):
     """Load or create a persistent vector store for a topic from disk"""
@@ -59,8 +62,13 @@ def Rag_core(given_data):
         embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-mpnet-base-v2"
         )
+
         session_id = given_data.get("session_id", "default")
-        print(f"got session_id:{session_id}")
+        print(f"got session_id: {session_id}")
+
+        if session_id not in chat_session:
+            chat_session[session_id]=[]
+        
         topic_name = given_data.get("topic_name", "default")
         print(f"Processing topic: {topic_name}")
         
@@ -128,7 +136,7 @@ def Rag_core(given_data):
 
     def Quering(input_query, vector_store):
         
-        def retrieve_context(query: str, k: int = 5):
+        def retrieve_context(query: str, k: int = 4):
             retrieved_docs = vector_store.similarity_search(query, k=k)
 
             docs_content = ""
@@ -141,23 +149,41 @@ def Rag_core(given_data):
 
         def ask_about_pdf(user_query):
             context, source_docs = retrieve_context(user_query, k=5)
+
             # print(f"the pdf lines are {context}")
             print(f"********************the input query is  {user_query}")
+
             system_message = f"""You are a helpful chatbot(PDFchart).
                                 Use only the following pieces of context to answer the 
                                 question. Don't make up any new information:{context} as
-                                is drawn from Pdf uploaded by user."""
+                                it is drawn from Pdf uploaded by user."""
 
             messages = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_query}
+                {"role": "system", "content": system_message}
+                # {"role": "user", "content": user_query}
             ]
-            print(messages)
+
+            chat_history = chat_session[session_id]
+            pprint(f"Chat History:{chat_history}")
+
+            messages.extend(chat_history[-4:])
+            messages.append({"role": "user", "content": user_query})
+
+            # pprint(messages)
+
             try:
                 response = model.invoke(messages)
             except Exception as e:
                 print(f"LLM model Error:{e}")
                 raise  # Re-raise to handle at caller level
+            
+            answer = clean_response(response.content)
+            chat_session[session_id].extend([
+                {"role": "user", "content": user_query},
+                {"role": "assistant", "content": answer}
+            ])
+            # pprint(f"chart Session:{chat_session}")
+
 
             return {
                 "answer": response.content,
@@ -169,20 +195,28 @@ def Rag_core(given_data):
 
     try:
         if given_data.get("status") and "pdf_path" in given_data:
+
             print(f"Got session_id:{session_id}")
             # New PDF - index it
             print(f"Indexing PDF for topic: {topic_name}")
+
             Pdf_Indexing(given_data["pdf_path"], vector_store)
             result = Quering(given_data["query"], vector_store)
+
             # print(result)
             print(result["answer"])
             answer = clean_response(result["answer"])
+
             return answer
         elif "query" in given_data:
+
             # Query existing indexed PDF
             print(f"Querying topic: {topic_name}")
+            print(f"Got session_id in query:{session_id}")
+
             result = Quering(given_data["query"], vector_store)
             # print(result["context_used"])
+
             print(result["answer"])
             answer = clean_response(result["answer"])
             
@@ -190,6 +224,7 @@ def Rag_core(given_data):
         else:
             raise ValueError("Invalid request: must provide 'query' and optionally 'pdf_path'")
     except Exception as e:
+
         print(f"Error processing request: {str(e)}")
         raise
     
