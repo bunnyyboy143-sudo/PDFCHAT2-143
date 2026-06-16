@@ -79,6 +79,10 @@ app.post("/upload/:topic",upload.single("PDF"),async (req,res)=>{
         res.json(response.data);
     }catch (error){
         console.log(`Error at server.js API call:${error}`)
+        res.status(500).json({
+            error: "Failed to process PDF",
+            details: error.message
+        })
     }
     
 })
@@ -88,17 +92,28 @@ app.post("/response",async (req,res)=>{
     console.log(req.body.status)
     const {session_id, topic_name}= req.body
     console.log("send request to python(port 8000)")
-    const response = await axios.post(
-        "http://localhost:8000/response",
-        {
-            query: req.body.query,
-            status:req.body.status,
-            session_id: session_id,
-            topic_name: topic_name
+    try{
+        const response = await axios.post(
+            "http://localhost:8000/response",
+            {
+                query: req.body.query,
+                status:req.body.status,
+                session_id: session_id,
+                topic_name: topic_name
+            }
+        );
+        console.log(response.data)
+        if(response.data.sender === 'error'){
+            throw new Error("Tokens Limit occered!")
         }
-    );
-    console.log(response.data)
-    res.json(response.data)
+        res.json(response.data)
+    }catch(error){
+        console.log(`Error at server.js API call:${error}`)
+        res.status(500).json({
+            error: "Python service call failed",
+            details: error
+        })
+    }
 })
 
 app.listen(5000,()=>{

@@ -43,7 +43,7 @@ def process_pdf(data: PdfRequest):
         print(query_response)
         return {
             "response_msg": query_response,
-            "sender": "bot",
+            "sender": "error",
             "pdf_path": data.pdf_path
         }
     except Exception as e:
