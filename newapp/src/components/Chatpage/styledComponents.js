@@ -74,9 +74,10 @@ export const MessagesContainer = styled.div`
 `
 
 export const LoadingContainer = styled.div`
-    width:79px;
-    background-image: url('https://res.cloudinary.com/da00pyggy/image/upload/v1781030761/92e1bc06-9928-4eda-929e-c9b2e13f7ee7.png');
+    width:80px;
+    background-image: url('https://res.cloudinary.com/da00pyggy/image/upload/v1781644324/b53f3ade-6415-4258-8c2b-d36492aa61ef.png');
     background-size: cover;
+    filter: drop-shadow(0 0 6px rgba(0, 180, 255, 0.4));
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -93,9 +94,11 @@ export const ChatHeadSection = styled.div`
 `
     // justify-content: space-around;^^
 
+export const HeadContainer = styled.div`
+    width: 62%;
+    margin-left: auto;
+`
 export const TopicHeading = styled.h1`
-    margin-left:36%;
-    margin-right:40%;
     font-weight: bold;
     text-decoration: underline;
 `
@@ -107,4 +110,37 @@ export const BackButton =styled.button`
     padding: 2px;
     color: #ffffff;
     cursor: pointer;
+    width: 2%;
+`
+export const RetrySection = styled.div`
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  background-color: #550f0f5c;
+  color: #ffffff;
+  width: 22%;
+  border: 0px;  
+  padding: 2px 6px 2px 6px;
+  border-radius: 18px 18px 18px 2px;
+  cursor: pointer;
+` 
+export const ErrText = styled.p`
+    margin-right: auto;
+    padding-left: 12px
+`
+export const RetryButton = styled.button`
+  outline: none;
+  cursor: pointer;
+  background-color: #78090969;
+  color: #ffffff;
+  width: 10%;
+  border: 0px;
+  padding: 8px;
+  border-radius: 4px;
+`
+
+export const TokenInfoSEC = styled.div`
+  text-align: center;
+  color: #ffffff;
+  width:100%
 `

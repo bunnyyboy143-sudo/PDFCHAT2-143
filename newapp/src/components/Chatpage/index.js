@@ -1,20 +1,33 @@
 import {useState,useEffect,useRef} from "react"
 import { useLocation, useNavigate} from "react-router-dom";
 import { IoArrowBackCircle } from "react-icons/io5";
+import { FaRedo } from "react-icons/fa";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import {MagnifyingGlass} from 'react-loader-spinner'
-import {ChatContainer,ChatHeadSection, TopicHeading, InputTab,InputBox,MessagesContainer,EnterButn, BackButton,LoadingContainer} from "./styledComponents"
+import {ChatContainer,ChatHeadSection, TopicHeading, HeadContainer, InputTab,InputBox,MessagesContainer,ErrText,EnterButn, BackButton,LoadingContainer,RetrySection,RetryButton,TokenInfoSEC} from "./styledComponents"
 import Message from "../Message"
+
+
+const MessageStatusConstants = {
+    "retry": "RETRY",
+    "inprogress": "INPROGRESS",
+    "success": "SUCCESS",
+    "Exceeded": "EXCEEDED"
+}
+
+
 const Chatpage = () =>{
     const navigateBack = useNavigate()
     const {state} = useLocation()
     const [userInput,setUserInput] = useState("")
-    const [isLoading, setIsLoading] = useState(false)
+    // const [isLoading, setIsLoading] = useState(false)
+    // const [retrysec, setRetrysec] = useState(false)
+    const [msgStatus,setMsgStatus] = useState(MessageStatusConstants.success)
     const messagesEndRef = useRef(null)
     const [responseMsgs,setResponseMsgs] = useState([])
 
     useEffect(()=>{
-        console.log("Effect ran");
+        console.log("Effect 1 ran");
         setResponseMsgs(prev =>[
             ...prev,
             {
@@ -22,7 +35,7 @@ const Chatpage = () =>{
             message: state.query_response,
             sender: "bot"
             }])
-        },[state.query_response])
+        },[])  // Empty array - runs only once on mount
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -32,10 +45,11 @@ const Chatpage = () =>{
         setUserInput(event.target.value)
     }
 
+
     const getResponseFromLLM =async (query)=>{
-        setIsLoading(true)
+        setMsgStatus(MessageStatusConstants.inprogress)
         try{
-            console.log("send request to nodejs(port 5000)")
+            console.log("sent request to nodejs(port 5000)")
             const response = await fetch(
                 "http://localhost:5000/response",
                 {
@@ -45,14 +59,24 @@ const Chatpage = () =>{
                     },
                     body: JSON.stringify({
                         query: query,
-                        status: "False"
+                        status: "False",
+                        session_id: state.session_id,
+                        topic_name: state.title
                     })
                 }
             )
             console.log("got response from  nodejs(port 5000)")
+            if(!response.ok){
+                throw new Error(`response failed from FASTAPI: ${response.statusText}`);
+            }
             const data = await response.json();
-            console.log("Response message:")
-            console.log(data)
+            // console.log("Response message:")
+            // console.log(data)
+            if(data[1] === 500){
+                console.log("Token exceeded detected, setting status...") 
+                setMsgStatus(MessageStatusConstants.Exceeded)
+                return
+            }
             setResponseMsgs(prev =>[
                 ...prev,
                 {
@@ -61,17 +85,17 @@ const Chatpage = () =>{
                 sender: data.sender
                 }]
             )
+            setMsgStatus(MessageStatusConstants.success)
         }catch (error){
             console.log(`Error at nodejs(port 5000): ${error}`)
-        }finally{
-            setIsLoading(false)
+            setMsgStatus(MessageStatusConstants.retry)
         }
         
     }
 
     const onEnterInput = (event)=>{
         event.preventDefault()
-        getResponseFromLLM(userInput)
+        getResponseFromLLM(userInput,false)
         setResponseMsgs(prev =>[
             ...prev,
             {
@@ -83,8 +107,48 @@ const Chatpage = () =>{
         setUserInput("")
     }
 
+    
+
+    const onRetry = ()=>{
+        let userQuery = responseMsgs.at(-1).message
+        console.log(userQuery)
+        getResponseFromLLM(userQuery, true)    
+    }
+
     const onBackInput = ()=>{
         navigateBack("/")
+    }
+
+    const getStatusSec = () =>{
+        switch(msgStatus){
+            case MessageStatusConstants.inprogress:
+                return(
+                    <LoadingContainer>
+                        <MagnifyingGlass  color="rgb(19, 18, 18)" height="40" width="40" />
+                    </LoadingContainer>
+                )
+            case MessageStatusConstants.retry:
+                return(
+                    <RetrySection > 
+                        <FaRedo onClick={onRetry} size={24}/>
+                        <ErrText>something went wrong....</ErrText>
+                    </RetrySection>
+                )
+            case MessageStatusConstants.Exceeded:
+                return (
+                    <TokenInfoSEC>
+                        <RetryButton onClick={onRetry}>
+                            Retry Again
+                        </RetryButton>
+                        <p>It seems like Token limit Exceeded wait upto 60sec and Retry...</p>
+                    </TokenInfoSEC>
+                )
+            case MessageStatusConstants.success:
+                return null  
+            default:
+                return null
+
+        } 
     }
 
 
@@ -94,17 +158,16 @@ const Chatpage = () =>{
                 <BackButton onClick={onBackInput}>
                     <IoArrowBackCircle size={"32px"}/>
                 </BackButton>
-                <TopicHeading>{state.title}</TopicHeading>
+                <HeadContainer>
+                    <TopicHeading>{state.title}</TopicHeading>
+                </HeadContainer>
+                
             </ChatHeadSection>
             <MessagesContainer>
                 {responseMsgs.map(each => (
                     <Message key={each.id} msgcontent={each.message} msgsource={each.sender}/>
                 ))}
-                {isLoading && (
-                    <LoadingContainer>
-                        <MagnifyingGlass  color="rgb(19, 18, 18)" height="40" width="40" />
-                    </LoadingContainer>
-                )}
+                {getStatusSec()}
                 <div ref={messagesEndRef} />
             </MessagesContainer>
             <InputTab onSubmit={onEnterInput}>

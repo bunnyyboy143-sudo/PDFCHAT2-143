@@ -1,18 +1,33 @@
 import {useNavigate} from "react-router-dom"
 import {useState} from "react"
+import {v4 as uuidv4} from 'uuid'
 import {Watch} from 'react-loader-spinner'
-import {FormContainer, FormElement,LoadingContainer,LoadingText,Heading,Labels,InputEle,SubmitButton} from "./styledComponents"
+import {FormContainer, FormElement,LoadingContainer,LoadingText,Heading,Labels,InputEle , UploadWrapper, CustomLabel, HiddenInput,FileDisplayBox,SubmitButton, RetryTxt, RetryButton} from "./styledComponents"
+
+
+
+const UploadStatusConstants = {
+    "retry": "RETRY",
+    "inprogress": "INPROGRESS",
+    "success": "SUCCESS"
+}
+
+
 const Home =(props) =>{
     const navigate = useNavigate()
     const [topic,setTopic] = useState("")
-    const [isLoading, setIsLoading] = useState(false)
+    const [uploadStatus, setUploadStatus] = useState(UploadStatusConstants.success)
     const [file,setFile] = useState(null)
+
     const uploadingFile = async () =>{
-        setIsLoading(true)
+        setUploadStatus(UploadStatusConstants.inprogress)
         try{
             console.log("uploading started")
             const formData = new FormData();
+            const session_id = uuidv4()
+            console.log(session_id)
             formData.append("PDF",file)
+            formData.append("session_id",session_id)
             const response = await fetch(
                 `http://localhost:5000/upload/${topic}`,
                 {
@@ -20,23 +35,27 @@ const Home =(props) =>{
                     body: formData,
                 }
             )
+            if(!response.ok){
+                throw new Error(`Upload failed with status ${response.status}`)
+            }
             console.log("uploaded file")
-            const data = await response.json();
+            const data = await response.json()
             console.log(data)
+            setUploadStatus(UploadStatusConstants.success)
             navigate("/chat",{
                 state:{
                     query_response: data.response_msg,
                     title: topic,
+                    session_id: session_id
                 }
             })
         }catch(error){
             console.log(`Error at uploadingfile: ${error}`)
-        }finally{
-            setIsLoading(false)
+            setUploadStatus(UploadStatusConstants.retry)
         }
         
     }
-    const submission =  (event)=>{
+    const submission = (event) => {
         event.preventDefault()
         console.log("uploading")
         uploadingFile()
@@ -53,28 +72,51 @@ const Home =(props) =>{
             </LoadingContainer>
     )
 
+    const retryView = () =>(
+        <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: "20px"}}>
+            <RetryButton onClick={uploadingFile}>Retry!</RetryButton>
+            <RetryTxt>Upload failed! Please try again.</RetryTxt>
+        </div>
+    )
+
     const renderInputForm = ()=>(
         <FormElement onSubmit={submission}>
             <Heading color="rgb(16, 189, 242)">DOCUCHART</Heading>
             <Labels htmlFor="topic">Enter the topic</Labels>
             <InputEle id="topic" type="text" onChange={topicChange} value={topic}/>
-            <Labels htmlFor="File">Upload the File</Labels>
-            <InputEle id="File" type="file" accept=".pdf" onChange={(e)=> setFile(e.target.files[0])}/>
-            <SubmitButton to="/chat" type="submit">Submit</SubmitButton>
+            <UploadWrapper>
+            <CustomLabel htmlFor="File">PDF</CustomLabel>
+            <HiddenInput 
+                id="File" 
+                type="file" 
+                accept=".pdf" 
+                onChange={(e) => setFile(e.target.files[0])}
+            />
+            <FileDisplayBox>
+                {file ? file.name : "No file chosen"}
+            </FileDisplayBox>
+            </UploadWrapper>
+
+            <SubmitButton type="submit" disabled={!file}>Submit</SubmitButton>
         </FormElement>
     )
 
-    const getrender=()=>{
-        if(isLoading){
-            return loadingView()
-        }else{
-            return renderInputForm()
+    const getStatusView = () => {
+        switch(uploadStatus){
+            case UploadStatusConstants.inprogress:
+                return loadingView()
+            case UploadStatusConstants.retry:
+                return retryView()
+            case UploadStatusConstants.success:
+                return renderInputForm()
+            default:
+                return renderInputForm()
         }
     }
 
     return(
     <FormContainer>
-        {getrender()}
+        {getStatusView()}
     </FormContainer>
 )
 
