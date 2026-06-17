@@ -29,7 +29,7 @@ const Home =(props) =>{
             formData.append("PDF",file)
             formData.append("session_id",session_id)
             const response = await fetch(
-                `http://localhost:5000/upload/${topic}`,
+                `https://pdf-chat-node-backend.onrender.com/upload/${topic}`,
                 {
                     method: "POST",
                     body: formData,
