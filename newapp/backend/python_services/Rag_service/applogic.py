@@ -5,7 +5,6 @@ from pprint import pprint
 import re
 import shutil
 
-# Load environment variables from the correct path
 env_path = os.path.join(os.path.dirname(__file__), "app.env")
 load_dotenv(env_path)
 
@@ -48,8 +47,8 @@ def get_vector_store(topic_name, embeddings):
     """Load or create a persistent vector store for a topic from disk"""
     # Sanitize topic name for folder path
     safe_topic_name = topic_name.strip().lower()
-    safe_topic_name = re.sub(r'[^a-z0-9\s]', '', safe_topic_name)  # Remove non-alphanumeric chars
-    safe_topic_name = re.sub(r'\s+', '_', safe_topic_name)  # Replace spaces with underscores
+    safe_topic_name = re.sub(r'[^a-z0-9\s]', '', safe_topic_name) 
+    safe_topic_name = re.sub(r'\s+', '_', safe_topic_name)  
     
     db_path = f"./chroma_langchain_db/{safe_topic_name}"
     
@@ -61,12 +60,10 @@ def get_vector_store(topic_name, embeddings):
         print(f"✓ CREATING NEW database at: {db_path}")
         print(f"  Collection name: {safe_topic_name}")
     
-    # Chroma automatically loads from disk if persist_directory exists
-    # If it doesn't exist, Chroma creates a new one
     vector_store = Chroma(
         collection_name=safe_topic_name,
         embedding_function=embeddings,
-        persist_directory=db_path,  # ← Chroma knows to save/load from this path
+        persist_directory=db_path,  
     )
     
     # Show current collection stats
@@ -76,7 +73,6 @@ def get_vector_store(topic_name, embeddings):
     return vector_store
 
 def clean_response(text):
-    """Remove <think> and </think> tags from LLM response"""
     cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
     return cleaned.strip()
 
@@ -141,9 +137,6 @@ def Rag_core(given_data):
         all_splits = text_splitter.split_documents(docs)
         print(f"  ✓ Text split into {len(all_splits)} chunks")
 
-        # add_documents() automatically saves to disk via persist_directory
-        # The vector_store object "remembers" where to save because it was created
-        # with persist_directory="./chroma_langchain_db/{topic_name}"
         print(f"\n→ Adding {len(all_splits)} document chunks to vector database...")
         document_ids = vector_store.add_documents(documents=all_splits)
         print(f"✓ SUCCESSFULLY added {len(document_ids)} documents")
@@ -196,7 +189,6 @@ def Rag_core(given_data):
 
             messages = [
                 {"role": "system", "content": system_message}
-                # {"role": "user", "content": user_query}
             ]
 
             messages.extend(recent_history)
@@ -213,7 +205,7 @@ def Rag_core(given_data):
                 response = model.invoke(messages)
             except Exception as e:
                 print(f"LLM model Error:{e}")
-                raise  # Re-raise to handle at caller level
+                raise  
             
             answer = clean_response(response.content)
             history.extend([
