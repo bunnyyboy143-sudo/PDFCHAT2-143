@@ -20,8 +20,6 @@ const Chatpage = () =>{
     const navigateBack = useNavigate()
     const {state} = useLocation()
     const [userInput,setUserInput] = useState("")
-    // const [isLoading, setIsLoading] = useState(false)
-    // const [retrysec, setRetrysec] = useState(false)
     const [msgStatus,setMsgStatus] = useState(MessageStatusConstants.success)
     const messagesEndRef = useRef(null)
     const [responseMsgs,setResponseMsgs] = useState([])
@@ -51,7 +49,7 @@ const Chatpage = () =>{
         try{
             console.log("sent request to nodejs(port 5000)")
             const response = await fetch(
-                "http://localhost:5000/response",
+                "https://pdf-chat-node-backend.onrender.com/response",
                 {
                     method: "POST",
                     headers:{
