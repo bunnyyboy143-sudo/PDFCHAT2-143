@@ -43,7 +43,7 @@ app.get("/",(req,res)=>{
 })
 
 app.post("/upload/:topic",upload.single("PDF"),async (req,res)=>{
-    // console.log(req.file.path);
+    console.log(req.file.path);
     const pdfPath = req.file.path;
     const {session_id}= req.body
     console.log(session_id)
