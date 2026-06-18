@@ -8,7 +8,7 @@ import shutil
 env_path = os.path.join(os.path.dirname(__file__), "app.env")
 load_dotenv(env_path)
 
-from langchain_core.language_models.chat_models import init_chat_model
+from langchain.chat_models import init_chat_model
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
